@@ -1,19 +1,30 @@
 pragma solidity 0.8.19;
 
 import {IPool} from "./Ipool.sol";
+import {IERC20} from "./IERC20.sol";
+import {HyperlaneConnectionClient} from "contracts/HyperlaneConnectionClient.sol";
 
-contract GoerliConnector {
-
+contract GoerliConnector is HyperlaneConnectionClient {
     IPool public pool;
-    address public daiAddress;
+    IERC20 public dai;
+
+    
     constructor(address _pool, address _daiAddress) {
         pool = IPool(_pool);
-        daiAddress = _daiAddress;
+        dai = IERC20(_daiAddress);
     }
+
     /**
 
     */
-    function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) public {
+    function supply(
+        address asset,
+        uint256 amount,
+        address onBehalfOf,
+        uint16 referralCode
+    ) public {
+        //dai approve code
+
         pool.supply(asset, amount, onBehalfOf, referralCode);
     }
 
@@ -21,22 +32,35 @@ contract GoerliConnector {
         pool.withdraw(asset, amount, to);
     }
 
-    function borrow(address asset, uint256 amount, uint256 interestRateMode, uint16 referralCode, address onBehalfOf) public {
+    function borrow(
+        address asset,
+        uint256 amount,
+        uint256 interestRateMode,
+        uint16 referralCode,
+        address onBehalfOf
+    ) public {
         pool.borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
     }
 
-    function _executeApproval(bytes memory data) internal {
-        (bool success, bytes memory returnData) = address(daiAddress).call(data);
-        require(success, "GoerliConnector: approval failed");
+    function repay(
+        address asset,
+        uint256 amount,
+        uint256 rateMode,
+        address onBehalfOf
+    ) public {
+        //dai approve code
+
+        pool.repay(asset, amount, rateMode, onBehalfOf);
     }
 
-    function _executeCall(bytes calldata data) internal{
-        (bytes memory functionData, bool isSupply) = abi.decode(data, (bytes, bool));
-        if(isSupply){
-            _executeApproval(functionData);
-            return;
-        }
-        (bool success, bytes memory returnData) = address(pool).call(data);
+    function _executeCall(bytes calldata data) internal {
+        (bool success, bytes memory returnData) = address(this).call(data);
         require(success, "GoerliConnector: call failed");
     }
+
+    function handle(_origin, sender, _message) external override onlyMailbox {
+        _executeCall(_message);
+    }
+
+    function deposit()
 }
