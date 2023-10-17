@@ -1,9 +1,15 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
 import {HyperlaneConnectionClient} from "contracts/HyperlaneConnectionClient.sol";
 
 contract MainContract is HyperlaneConnectionClient {
     address public goerliConnector;
+
+    /**
+    @notice Spark protocol functions - supply, withdraw, borrow, repay
+    
+     */
 
     function setGoerliConnector(address _goerliConnector) external {
         goerliConnector = _goerliConnector;
@@ -14,7 +20,7 @@ contract MainContract is HyperlaneConnectionClient {
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
-    ) external {
+    ) external pure returns (bytes memory) {
         // pool.supply(asset, amount, onBehalfOf, referralCode);
         bytes memory data = abi.encodeWithSelector(
             "supply(address,uint256,address,uint16)",
@@ -23,10 +29,14 @@ contract MainContract is HyperlaneConnectionClient {
             onBehalfOf,
             referralCode
         );
-        sendTxn(data);
+        return data;
     }
 
-    function withdraw(address asset, uint256 amount, address to) external {
+    function withdraw(
+        address asset,
+        uint256 amount,
+        address to
+    ) external pure returns (bytes memory) {
         // pool.withdraw(asset, amount, to);
         bytes memory data = abi.encodeWithSelector(
             "withdraw(address,uint256,address)",
@@ -34,7 +44,7 @@ contract MainContract is HyperlaneConnectionClient {
             amount,
             to
         );
-        sendTxn(data);
+        return data;
     }
 
     function borrow(
@@ -43,7 +53,7 @@ contract MainContract is HyperlaneConnectionClient {
         uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
-    ) external {
+    ) external pure returns (bytes memory) {
         // pool.borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
         bytes memory data = abi.encodeWithSelector(
             "borrow(address,uint256,uint256,uint16,address)",
@@ -53,7 +63,8 @@ contract MainContract is HyperlaneConnectionClient {
             referralCode,
             onBehalfOf
         );
-        sendTxn(data);
+
+        return data;
     }
 
     function repay(
@@ -61,7 +72,7 @@ contract MainContract is HyperlaneConnectionClient {
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
-    ) external {
+    ) external pure returns (bytes memory) {
         // pool.repay(asset, amount, rateMode, onBehalfOf);
         bytes memory data = abi.encodeWithSelector(
             "repay(address,uint256,uint256,address)",
@@ -70,10 +81,6 @@ contract MainContract is HyperlaneConnectionClient {
             rateMode,
             onBehalfOf
         );
-        sendTxn(data);
-    }
-
-    function sendTxn(bytes memory data) external {
-        mailbox.dispatch(4, goerliConnector, data);
+        return data;
     }
 }

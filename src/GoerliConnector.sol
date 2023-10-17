@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
 import {IPool} from "./Ipool.sol";
@@ -8,23 +9,23 @@ contract GoerliConnector is HyperlaneConnectionClient {
     IPool public pool;
     IERC20 public dai;
 
-    
     constructor(address _pool, address _daiAddress) {
         pool = IPool(_pool);
         dai = IERC20(_daiAddress);
     }
 
     /**
-
+    @notice Spark protocol functions - supply, withdraw, borrow, repay
+    recives the data from the main contract and executes the function
     */
-    function supply(
+    function supplyData(
         address asset,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
     ) public {
         //dai approve code
-
+        dai.approve(address(pool), amount);
         pool.supply(asset, amount, onBehalfOf, referralCode);
     }
 
@@ -49,7 +50,7 @@ contract GoerliConnector is HyperlaneConnectionClient {
         address onBehalfOf
     ) public {
         //dai approve code
-
+        dai.approve(address(pool), amount);
         pool.repay(asset, amount, rateMode, onBehalfOf);
     }
 
@@ -62,5 +63,5 @@ contract GoerliConnector is HyperlaneConnectionClient {
         _executeCall(_message);
     }
 
-    function deposit()
+    // function deposit()
 }
