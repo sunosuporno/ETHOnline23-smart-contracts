@@ -2,9 +2,11 @@
 pragma solidity 0.8.19;
 
 import {HyperlaneConnectionClient} from "contracts/HyperlaneConnectionClient.sol";
+import {IERC20} from "./IERC20.sol";
 
 contract MainContract is HyperlaneConnectionClient {
     address public goerliConnector;
+    IERC20 public dai;
 
     /**
     @notice Spark protocol functions - supply, withdraw, borrow, repay
@@ -13,6 +15,18 @@ contract MainContract is HyperlaneConnectionClient {
 
     function setGoerliConnector(address _goerliConnector) external {
         goerliConnector = _goerliConnector;
+    }
+
+    function approve(
+        address _daiAddress,
+        uint256 amount
+    ) external pure returns (bytes memory) {
+        bytes memory data = abi.encodeWithSelector(
+            "approve(address,uint256)",
+            _daiAddress,
+            amount
+        );
+        return data;
     }
 
     function supply(
@@ -82,5 +96,18 @@ contract MainContract is HyperlaneConnectionClient {
             onBehalfOf
         );
         return data;
+    }
+
+    function _sendTokens(address safeWallet, uint256 amount) external {
+        dai.transferFrom(address(this), safeWallet, amount);
+    }
+
+    function handle(
+        address _origin,
+        address sender,
+        bytes calldata _message
+    ) external override onlyMailbox {
+        (bool success, bytes memory returnData) = address(this).call(_message);
+        require(success, "GoerliConnector: call failed");
     }
 }
