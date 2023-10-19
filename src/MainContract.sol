@@ -5,17 +5,12 @@ import {HyperlaneConnectionClient} from "contracts/HyperlaneConnectionClient.sol
 import {IERC20} from "./IERC20.sol";
 
 contract MainContract is HyperlaneConnectionClient {
-    address public goerliConnector;
     IERC20 public dai;
 
     /**
     @notice Spark protocol functions - supply, withdraw, borrow, repay
     
      */
-
-    function setGoerliConnector(address _goerliConnector) external {
-        goerliConnector = _goerliConnector;
-    }
 
     function approve(
         address _daiAddress,
