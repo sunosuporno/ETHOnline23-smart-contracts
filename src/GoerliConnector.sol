@@ -7,12 +7,12 @@ import {HyperlaneConnectionClient} from "contracts/HyperlaneConnectionClient.sol
 
 contract GoerliConnector is HyperlaneConnectionClient {
     // IPool public pool;
-    // IERC20 public dai;
+    IERC20 public dai;
 
-    // constructor(address _pool, address _daiAddress) {
-    //     pool = IPool(_pool);
-    //     dai = IERC20(_daiAddress);
-    // }
+    constructor(address _pool, address _daiAddress) {
+        // pool = IPool(_pool);
+        dai = IERC20(_daiAddress);
+    }
 
     // /**
     // @notice Spark protocol functions - supply, withdraw, borrow, repay
